@@ -40,9 +40,6 @@ runs:
     - run: flutter build web --release --web-renderer=${{inputs.webRenderer}} --base-href ${{inputs.baseHref}} ${{inputs.customArgs}}
       shell: bash
       working-directory: ${{inputs.workingDir}}
-    - run: rm build/web/assets/NOTICES && grep -v "assets/NOTICES" build/web/flutter_service_worker.js > tmpfile && mv tmpfile build/web/flutter_service_worker.js
-      shell: bash
-      working-directory: ${{inputs.workingDir}}
     - run: dart cli/executable.dart webOptimize --assetBase ${{inputs.assetBase}}
       shell: bash
       working-directory: ${{inputs.workingDir}}
