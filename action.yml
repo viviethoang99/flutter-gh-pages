@@ -1,6 +1,6 @@
-name: 'Deploy Flutter web app to github pages'
-description: 'Automates the build and deployment of your Flutter web app on Github gh pages'
-author: 'bluefireteam'
+name: "Deploy Flutter web app to github pages"
+description: "Automates the build and deployment of your Flutter web app on Github gh pages"
+author: "viviethoang9"
 
 branding:
   color: blue
@@ -8,32 +8,43 @@ branding:
 
 inputs:
   webRenderer:
-    description: 'Which web renderer to be used, default is auto'
+    description: "Which web renderer to be used, default is auto"
     required: false
     default: auto
   workingDir:
-    description: 'The directory where the project is (default .)'
+    description: "The directory where the project is (default .)"
     required: false
     default: .
   targetBranch:
     required: false
     default: gh-pages
   baseHref:
-    description: 'base href (if applicable)'
+    description: "base href (if applicable)"
     required: false
     default: "/"
   customArgs:
     description: 'Custom args like: --dart-define="simple=example"'
     required: false
     default:
+  assetBase:
+    description: 'asset base url.end with /, eq: http://192.168.0.1:1111/'
+    required: false
+    default:
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - run: flutter config --enable-web
       shell: bash
       working-directory: ${{inputs.workingDir}}
-    - run: flutter build web --release --web-renderer=${{inputs.webRenderer}} --base-href ${{inputs.baseHref}} ${{inputs.customArgs}}
+    - run: cp -r build/app/inter
+    - run: flutter build web --release --web-renderer=${{inputs.webRenderer}} --base-href --tree-shake-icons ${{inputs.baseHref}} ${{inputs.customArgs}}
+      shell: bash
+      working-directory: ${{inputs.workingDir}}
+    - run: rm build/web/assets/NOTICES && grep -v "assets/NOTICES" build/web/flutter_service_worker.js > tmpfile && mv tmpfile build/web/flutter_service_worker.js
+      shell: bash
+      working-directory: ${{inputs.workingDir}}
+    - run: dart cli/executable.dart webOptimize --assetBase ${{inputs.assetBase}}
       shell: bash
       working-directory: ${{inputs.workingDir}}
     - run: git config user.name github-actions
